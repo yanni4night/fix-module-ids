@@ -32,7 +32,7 @@ describe('#fixModuleIds()', () => {
         it('should modify module id', () => {
             const dist = fixModuleIds(source, {
                 fixModuleId: moduleId => 'M:' + moduleId,
-                fixModuleDepsId: (moduleId) => 'N:' + moduleId
+                fixModuleDepsId: moduleId => 'N:' + moduleId
             });
             const ast = esprima.parse(dist);
             assert.deepEqual('System', ast.body[0].expression.callee.object.name);
@@ -41,6 +41,30 @@ describe('#fixModuleIds()', () => {
             assert.deepEqual('ArrayExpression', ast.body[0].expression.arguments[1].type);
             assert.deepEqual('N:B', ast.body[0].expression.arguments[1].elements[0].value);
             assert.deepEqual('N:C', ast.body[0].expression.arguments[1].elements[1].value);
+        });
+
+        it('should work if deps do not exist', () => {
+            const dist = fixModuleIds('System.register("A")', {
+                fixModuleId: moduleId => 'M:' + moduleId,
+                fixModuleDepsId: moduleId => 'N:' + moduleId
+            });
+            const ast = esprima.parse(dist);
+            assert.deepEqual('System', ast.body[0].expression.callee.object.name);
+            assert.deepEqual('register', ast.body[0].expression.callee.property.name);
+            assert.deepEqual('M:A', ast.body[0].expression.arguments[0].value);
+        });
+
+        it('should work if module id does not exists', function () {
+            const dist = fixModuleIds('System.register(["B","C"])', {
+                fixModuleId: moduleId => 'M:' + moduleId,
+                fixModuleDepsId: moduleId => 'N:' + moduleId
+            });
+            const ast = esprima.parse(dist);
+            assert.deepEqual('System', ast.body[0].expression.callee.object.name);
+            assert.deepEqual('register', ast.body[0].expression.callee.property.name);
+            assert.deepEqual('ArrayExpression', ast.body[0].expression.arguments[0].type);
+            assert.deepEqual('N:B', ast.body[0].expression.arguments[0].elements[0].value);
+            assert.deepEqual('N:C', ast.body[0].expression.arguments[0].elements[1].value);
         });
     });
 });
