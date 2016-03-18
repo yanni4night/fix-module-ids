@@ -14,38 +14,75 @@ import esprima from 'esprima';
 export const fixModuleIds = (source, opts) => {
   const options = Object.assign({
     fixModuleId: moduleId => moduleId,
-    fixModuleDepsId: (moduleId) => moduleId
+    fixModuleDepsId: (moduleId) => moduleId,
+    appendModuleId: false
   }, opts);
+
+  const {fixModuleId, fixModuleDepsId, appendModuleId} = options;
 
   const collectedDatas = [];
 
-  JSON.stringify(esprima.parse(source, {
+  const ast = esprima.parse(source, {
+    tokens: true,
     range: true
-  }), function(k, v) {
+  });
+
+  JSON.stringify(ast, function(k, v) {
     // System.register
     if (v && 'CallExpression' === v.type && v.callee && 'MemberExpression' === v.callee.type && v.callee
         .object && v.callee.object.name ===
-      'System' && v.callee.property.name === 'register' && Array.isArray(v.arguments) && v.arguments.length
-    ) {
+      'System' && v.callee.property.name === 'register' && Array.isArray(v.arguments)) {
+
+      let appendId = () => {
+        if (appendModuleId) {
+          let registerTokenIdx = -1;
+          let token;
+
+          for (let i = 0; i < ast.tokens.length; ++i) {
+            token = ast.tokens[i];
+            if (token.range[0] === v.callee.property.range[0] && token.range[1] === v.callee.property.range[1]) {
+              registerTokenIdx = i;
+              break;
+            }
+          }
+
+          let nextToken = ast.tokens[1 + registerTokenIdx];
+
+          if (registerTokenIdx > -1 && nextToken && 'Punctuator' === nextToken.type) {
+            collectedDatas.push({
+              range: [nextToken.range[1], nextToken.range[1]],
+              value: '\'' + ('function' === typeof appendModuleId ? appendModuleId() : appendModuleId) + '\'' + (v.arguments.length ? ',' : ''),
+            });
+          }
+        }
+      };
+
       let fixDeps = (idx) => {
         if (v.arguments[idx] && Array.isArray(v.arguments[idx].elements)) {
           collectedDatas.push({
             range: v.arguments[idx].range,
             value: '[' + v.arguments[idx].elements.filter((dep) => 'Literal' === dep.type)
-                .map((dep) => '\'' + options.fixModuleDepsId(
+                .map((dep) => '\'' + fixModuleDepsId(
                     dep.value) +
                   '\'').join(',') + ']'
           });
         }
       };
+      // System.register()
+      if (!v.arguments.length) {
+        appendId();
+      }
       // System.register(A,[B,C])
-      if ('Literal' === v.arguments[0].type) {
+      else if ('Literal' === v.arguments[0].type) {
         collectedDatas.push({
           range: v.arguments[0].range,
-          value: '\'' + options.fixModuleId(v.arguments[0].value) + '\'',
+          value: '\'' + fixModuleId(v.arguments[0].value) + '\'',
         });
         fixDeps(1);
-      } else {
+      }
+      // System.register([B,C]) 
+      else {
+        appendId();
         fixDeps(0);
       }
 
