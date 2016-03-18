@@ -4,7 +4,7 @@
   "description": "Fixed module ids for systemjs/commonjs/AMD modules",
   "main": "dist/index.js",
   "scripts": {
-    "test": "grunt test",
+    "test": "mocha --harmony",
     "build": "./node_modules/.bin/babel src/*.js > ./dist/index.js"
   },
   "repository": {

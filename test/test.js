@@ -14,7 +14,7 @@ const fixModuleIds = require('../dist/').fixModuleIds;
 const esprima = require('esprima');
 const fs = require('fs');
 const assert = require('assert');
-const source = fs.readFileSync(__dirname + '/fixtures/case.js', 'utf8');
+const source = 'System.register("A", ["B","C"])';
 
 describe('#fixModuleIds()', () => {
     describe('systemjs', () => {
