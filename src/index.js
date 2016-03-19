@@ -31,7 +31,7 @@ export const fixModuleIds = (source, opts) => {
     // System.register
     if (v && 'CallExpression' === v.type && v.callee && 'MemberExpression' === v.callee.type && v.callee
         .object && v.callee.object.name ===
-      'System' && v.callee.property.name === 'register' && Array.isArray(v.arguments)) {
+      'System' && /(register|import)/.test(v.callee.property.name) && Array.isArray(v.arguments)) {
 
       let appendId = () => {
         if (appendModuleId) {

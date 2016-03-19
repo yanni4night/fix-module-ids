@@ -1,11 +1,11 @@
 {
   "name": "fix-module-ids",
   "version": "1.0.0",
-  "description": "Fixed module ids for systemjs/commonjs/AMD modules",
+  "description": "Fixed module ids for systemjs modules",
   "main": "dist/index.js",
   "scripts": {
     "test": "mocha --harmony",
-    "build": "./node_modules/.bin/babel src/*.js > ./dist/index.js"
+    "build": "./node_modules/.bin/babel src/index.js > ./dist/index.js"
   },
   "repository": {
     "type": "git",

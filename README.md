@@ -1,12 +1,12 @@
 # fix-module-ids
-Fixed module ids for systemjs/commonjs/AMD modules
+Fixed module ids for systemjs modules
 
 # usage
 
 ```javascript
 const fixModuleIds = require('fix-module-ids').fixModuleIds;
 
-const ret = fixModuleIds('System.register("A",["B","C"])', {
+const ret = fixModuleIds('System.register("A", ["B","C"])', {
     fixModuleId: moduleId => 'M:' + moduleId,
     fixModuleDepsId: (moduleId) => 'N:' + moduleId
 });
