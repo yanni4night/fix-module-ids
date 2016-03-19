@@ -34,7 +34,7 @@ export const fixModuleIds = (source, opts) => {
       'System' && /(register|import)/.test(v.callee.property.name) && Array.isArray(v.arguments)) {
 
       let appendId = () => {
-        if (appendModuleId) {
+        if ('register' === v.callee.property.name && appendModuleId) {
           let registerTokenIdx = -1;
           let token;
 
