@@ -1,11 +1,11 @@
 {
   "name": "fix-module-ids",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Fixed module ids for systemjs modules",
   "main": "dist/index.js",
   "scripts": {
     "test": "mocha --harmony",
-    "install": "npm run build",
+    "prepublish": "npm run build",
     "build": "./node_modules/.bin/babel src/index.js > ./dist/index.js"
   },
   "repository": {
