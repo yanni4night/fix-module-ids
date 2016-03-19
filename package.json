@@ -1,6 +1,6 @@
 {
   "name": "fix-module-ids",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "Fixed module ids for systemjs modules",
   "main": "dist/index.js",
   "scripts": {
